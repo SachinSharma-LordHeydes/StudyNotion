@@ -1,0 +1,13 @@
+{
+  "name": "studynotion",
+  "version": "1.0.0",
+  "description": "Learning Management System",
+  "scripts": {
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+     "dev": "concurrently -c \"blue.bold,green.bold\" \"cd server && npm run dev\" \"cd client && npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.9"
+  }
+}
