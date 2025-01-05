@@ -2,7 +2,7 @@ const userModel=require('../../Models/userModel');
 const OTPModel=require('../../Models/OTPModel');
 const profileModle=require('../../Models/profileModel');
 const jwt=require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');;
 const saltRounds=10;
 
 
