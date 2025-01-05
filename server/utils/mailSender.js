@@ -3,32 +3,6 @@ const nodemailer = require("nodemailer");
 require('dotenv').config();
 
 
-// const mailSender=async(email,title,body)=>{
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       host: process.env.MAIL_HOST,
-//       auth: {
-//         user:  process.env.MAIL_USER,
-//         pass:  process.env.MAIL_APP_PASSWORD,
-//       },
-//     });
-//     let info = await transporter.sendMail({
-//       from: "Sachin || Greatest WebDeveloper Alive", // sender address
-//       to: `${email}`, // list of receivers
-//       subject: `${title}`, // Subject line
-//       html: `Your OPT for gmail verification is <b> <h1>${body}</h1>`, // html body
-//     });
-//     console.log("Male Sent Successfully (mailSender)")
-//     console.log(info);
-//     return info;
-//   } catch (error) {
-//     console.log("Error while sending mail",error);
-//   }
-// }
-
-// const nodemailer = require("nodemailer");
-// require('dotenv').config();
-
 const mailSender = async (email, title, body) => {
   try {
     // Create transporter with correct Gmail SMTP settings
@@ -58,18 +32,16 @@ const mailSender = async (email, title, body) => {
             This OTP will expire in 2 minutes. Please do not share this with anyone.
           </p>
         </div>
-      `, // html body
+      `, 
     });
 
     console.log("Email sent successfully:", info.messageId);
     return info;
   } catch (error) {
     console.error("Error while sending mail:", error.message);
-    throw error; // Rethrow to handle it in the calling function
+    throw error; 
   }
 };
-
-// module.exports = mailSender;
 
 module.exports=mailSender;
 
