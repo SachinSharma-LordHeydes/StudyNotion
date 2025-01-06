@@ -322,7 +322,9 @@ export function buyCourse(itemId, totalPrice,user){
     dispatch(setLoader(true))
     try {
       console.log("user to buy----------->",user)
-      const response = await axios.post("https://studynotion-eu3j.onrender.com/api/v1/payment/initialize-esewa", {
+      const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+      console.log("backendBaseUrl-------->",backendBaseUrl)
+      const response = await axios.post(`${backendBaseUrl}/api/v1/payment/initialize-esewa`, {
         user,
         itemId,
         totalPrice: Number(totalPrice).toFixed(2), // Format price to 2 decimal places
