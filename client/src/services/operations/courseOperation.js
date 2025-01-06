@@ -350,7 +350,7 @@ export function buyCourse(itemId, totalPrice,user){
         product_code: 'EPAYTEST', 
         signature: payment.signature,
         signed_field_names: payment.signed_field_names,
-        success_url: `${frontendBaseUrl}/dashboard/enrolled-courses`,
+        success_url: `${backendBaseUrl}/api/v1/payment/complete-payment`,
         tax_amount: '0.00',
         total_amount: Number(totalPrice).toFixed(2), 
         transaction_uuid: purchasedItemData._id,
