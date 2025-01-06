@@ -323,6 +323,7 @@ export function buyCourse(itemId, totalPrice,user){
     try {
       console.log("user to buy----------->",user)
       const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+      const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL;
       console.log("backendBaseUrl-------->",backendBaseUrl)
       const response = await axios.post(`${backendBaseUrl}/api/v1/payment/initialize-esewa`, {
         user,
@@ -343,13 +344,13 @@ export function buyCourse(itemId, totalPrice,user){
       // Step 2: Create eSewa form dynamically
       const paymentForm = {
         amount: Number(totalPrice).toFixed(2),
-        failure_url: `${FRONTEND_BASE_URL}`,
+        failure_url: `${frontendBaseUrl}`,
         product_delivery_charge: '0.00',
         product_service_charge: '0.00',
         product_code: 'EPAYTEST', 
         signature: payment.signature,
         signed_field_names: payment.signed_field_names,
-        success_url: `${FRONTEND_BASE_URL}/dashboard/enrolled-courses`,
+        success_url: `${frontendBaseUrl}/dashboard/enrolled-courses`,
         tax_amount: '0.00',
         total_amount: Number(totalPrice).toFixed(2), 
         transaction_uuid: purchasedItemData._id,
