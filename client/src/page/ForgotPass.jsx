@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword } from '../services/operations/authOperation';
+import { resetPassword, sendResetPasswordMail } from '../services/operations/authOperation';
 import Loader from './Loader';
 
 function ForgotPass() {
@@ -17,7 +17,9 @@ function ForgotPass() {
 
   const handleSendOtp = (e) => {
     e.preventDefault();
-    dispatch(resetPassword(email))
+    // dispatch(resetPassword(email))
+    // dispatch(sendResetPasswordMail(data))
+    dispatch(sendResetPasswordMail(email))
     console.log("Reset PAssword Status => ",status)
   };
 
