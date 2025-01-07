@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword } from '../services/operations/authOperation';
+import { resetPassword, sendResetPasswordMail } from '../services/operations/authOperation';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 
@@ -29,7 +29,7 @@ function ResetPassword() {
         confirmPassword,
         token
       }
-      dispatch(resetPassword(data))
+      dispatch(sendResetPasswordMail(data))
       navigate('/Login')
     }
   };

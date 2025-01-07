@@ -54,7 +54,7 @@ export function resetPassword(data){
     dispatch(setLoader(true))
     try {
       const {token,password,confirmPassword}=data
-      const response=await apiConnector("POST",SENDRESETPASSMAIL_API,{token,password,confirmPassword});
+      const response=await apiConnector("POST",RESETPASSWORD_API,{token,password,confirmPassword});
       console.log("Reset Password Response => ",response.data.success)
       dispatch(setStatus(true))
 
