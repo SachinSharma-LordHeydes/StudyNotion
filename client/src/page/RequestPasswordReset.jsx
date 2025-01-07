@@ -14,6 +14,10 @@ function RequestPasswordReset() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log("Clicked SendReset Password Link================== => ")
+    if(!email){
+      return;
+    }
     dispatch(sendResetPasswordMail(email))
     setEmailSent(true);
   };

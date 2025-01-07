@@ -15,11 +15,12 @@ function ForgotPass() {
     setEmail(e.target.value);
   };
 
-  const handleSendOtp = (e) => {
+  const handleResetMail = (e) => {
     e.preventDefault();
-    // dispatch(resetPassword(email))
+    console.log("Clicked handleResetMail================== => ",status)
+    dispatch(resetPassword(email))
     // dispatch(sendResetPasswordMail(data))
-    dispatch(sendResetPasswordMail(email))
+    // dispatch(sendResetPasswordMail(email))
     console.log("Reset PAssword Status => ",status)
   };
 
@@ -38,7 +39,7 @@ function ForgotPass() {
                 <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                   <h2 className="text-2xl font-semibold text-gray-700 text-center mb-4">Reset Your Password</h2>
                   <p className="text-gray-600 text-center mb-6">Enter your email address and we will send you an Link to reset your password if exist.</p>
-                  <form onSubmit={handleSendOtp} className="space-y-4">
+                  <form onSubmit={handleResetMail} className="space-y-4">
                     <div className="flex flex-col">
                       <label htmlFor="email" className="mb-2 text-gray-700">Email Address</label>
                       <input

@@ -29,8 +29,6 @@ function ResetPassword() {
         confirmPassword,
         token
       }
-      // dispatch(sendResetPasswordMail(data))
-      // dispatch(resetPassword(email))
       dispatch(resetPassword(data))
       navigate('/Login')
     }

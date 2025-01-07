@@ -62,7 +62,7 @@ export function resetPassword(data){
 
     } catch (error) {
       dispatch(setLoader(false))
-      console.log("Error while sending OTP => ",error)
+      console.log("Error while resetting Password => ",error)
       dispatch(setStatus(false))
     }
   }

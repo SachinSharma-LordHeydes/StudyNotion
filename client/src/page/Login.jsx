@@ -34,7 +34,6 @@ function Login() {
 
   function goToForgotPass(){
     console.log("Login FOrm data => ",formData.email)
-    dispatch(sendResetPasswordMail(formData.email))
     navigate('/Resetpassword')
   }
 
