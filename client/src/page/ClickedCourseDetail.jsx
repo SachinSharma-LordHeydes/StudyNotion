@@ -1,6 +1,6 @@
 import React, {useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { addToCart, buyCourse, getCourseDetails, removeFromCart } from '../services/operations/courseOperation';
 import { getAllSection } from '../services/operations/sectionOperations';
 import { MdLaptopChromebook } from "react-icons/md";
@@ -23,6 +23,7 @@ function ClickedCourseDetail() {
   const { userData,loader } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
+  const navigate=useNavigate()
   const { catagoryName, id } = useParams();
 
   const [clicked, setClicked] = useState(null);
@@ -34,8 +35,20 @@ function ClickedCourseDetail() {
 
 
   const [cartArray,setCartArray]=useState([])
+  const [enrolledCoursesArray,setEnrolledCoursesCartArray]=useState([])
   const cartArray2=userData.cart
 
+
+  useEffect(() => {
+    // if (userData?.courseEnrolled?.includes(courseDetails?._id)) {
+    //   console.log("-----------True-----------")
+    // }
+    // else{
+    //   console.log("-----------False-----------")
+    // }
+    setEnrolledCoursesCartArray(userData.courseEnrolled.map((items)=>items._id))
+      console.log("Enrolled Courses------>",enrolledCoursesArray)
+  }, [userData]);
 
 
   useEffect(() => {
@@ -97,6 +110,10 @@ function handelRemoveCart() {
   const handelBuy=async (itemId, totalPrice,user)=>{
     console.log("Buy Clicked----------->",itemId, totalPrice)
     dispatch(buyCourse(itemId, totalPrice,user))
+  }
+
+  const GotoEnrolledCourses =()=>{
+    navigate("/dashboard/enrolled-courses")
   }
 
   return (
@@ -264,9 +281,21 @@ function handelRemoveCart() {
                   </p>
                 </div>
                 <div className='space-y-2 mt-5'>
-                  <div onClick={()=>handelBuy(courseDetails?._id,courseDetails?.price,userData?._id)}>
-                    <YellowBlackBtn  colour='Yellow'>Buy Now</YellowBlackBtn>
-                  </div>
+                  {
+
+                    enrolledCoursesArray?.includes(courseDetails?._id)?
+                    (
+                      <div onClick={()=>GotoEnrolledCourses()}>
+                        <YellowBlackBtn  colour='Yellow'>Visite</YellowBlackBtn>
+                      </div>
+                    )
+                    :
+                    (  
+                      <div onClick={()=>handelBuy(courseDetails?._id,courseDetails?.price,userData?._id)}>
+                        <YellowBlackBtn  colour='Yellow'>Buy Now</YellowBlackBtn>
+                      </div>
+                    )
+                  }
                   <div>
                     <YellowBlackBtn  colour='Black'>
                       {
