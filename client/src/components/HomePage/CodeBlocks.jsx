@@ -2,8 +2,22 @@ import React from 'react'
 import YellowBlackBtn from './YellowBlackBtn'
 import { FaArrowRight } from 'react-icons/fa6'
 import { TypeAnimation } from 'react-type-animation';
+import { useNavigate } from 'react-router';
 
 function CodeBlocks({heading,subheading,btn1,btn2,sequence,placing,gradient}) {
+
+  const navigate=useNavigate()
+
+  const handelSignupNavigateion=()=>{
+    if(localStorage.getItem("userData")){
+      console.log("true")
+      navigate(`/catalog/DSA`)
+    }else{
+      console.log("false")
+      navigate("/Signup")
+    }
+  }
+
   return (
     <div className={`flex ${placing} justify-center items-center text-md font-extralight gap-52`}>
       {/* textSection */}
@@ -17,11 +31,16 @@ function CodeBlocks({heading,subheading,btn1,btn2,sequence,placing,gradient}) {
           </p>
 
           <div className='mt-12 flex'>
-            <YellowBlackBtn colour={`${btn1.colour}`} arrow={`${<FaArrowRight className='ml-2' />}`} >
-              {btn1.text} <FaArrowRight></FaArrowRight>
-              
-            </YellowBlackBtn>
-            <YellowBlackBtn colour={`${btn2.colour}`} >{btn2.text}</YellowBlackBtn>
+            <div onClick={handelSignupNavigateion}>
+                <YellowBlackBtn colour={`${btn1.colour}`} arrow={`${<FaArrowRight className='ml-2' />}`} >
+                    {btn1.text} <FaArrowRight></FaArrowRight>
+                </YellowBlackBtn>
+            </div>
+
+            <div onClick={()=>{navigate('/about')}}>
+                <YellowBlackBtn colour={`${btn2.colour}`} >{btn2.text}</YellowBlackBtn>
+            </div>
+           
           </div>
 
       </div>

@@ -76,7 +76,7 @@ function ContactForm() {
           </div>
           {errors.message && <div className='mt-1 text-[#FF0000]'>Please enter something.</div>}
         </div>
-        <div className=''>
+        <div className='w-full'>
           <YellowBlackBtn width='full' colour={'Yellow'}>Send Message</YellowBlackBtn>
         </div>
       </form>

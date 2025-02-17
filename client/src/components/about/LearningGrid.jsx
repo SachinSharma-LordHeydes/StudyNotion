@@ -2,6 +2,7 @@ import React from 'react'
 
 import YellowBlackBtn from '../HomePage/YellowBlackBtn'
 import HighligthText from '../HomePage/HighligthText';
+import { useNavigate } from 'react-router';
 
 
 
@@ -48,6 +49,7 @@ const LearningGridArray = [
   },
 ];
 function LearningGrid() {
+  const navigate=useNavigate()
   return (
     <div>
       <div className='grid grid-cols-4 grid-rows-2 '>
@@ -65,7 +67,9 @@ function LearningGrid() {
                 <p className='text-richblack-400 mt-9'>
                   {element.description}
                 </p>
-                <YellowBlackBtn colour={'Yellow'}>Learn</YellowBlackBtn>
+                <div className='my-5' onClick={navigate("/about")}>
+                  <YellowBlackBtn colour={'Yellow'}>Learn</YellowBlackBtn>
+                </div>
               </div>
             ):
             (

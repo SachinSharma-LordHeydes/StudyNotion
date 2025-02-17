@@ -20,11 +20,14 @@ import ExploreCards from '../components/HomePage/ExploreCards';
 import { HomePageExplore } from '../data/homepage-explore';
 import { useSelector } from 'react-redux';
 import Loader from './Loader';
+import { useNavigate } from 'react-router';
 
 
 function Home() {
   
   const {loader}=useSelector((state)=>state.auth);
+
+  const navigate=useNavigate();
   
   const tags=HomePageExplore.map((element)=>element.tag);
   const courses=HomePageExplore.map((element)=>element.courses);
@@ -50,6 +53,16 @@ function Home() {
   function clickHandlerForCard(id){
     // console.log("Event => ",event.target.id);
     setCurrentCard(id);
+  }
+
+  const handelNavigationToCatalog=()=>{
+    if(localStorage.getItem("userData")){
+      console.log("true")
+      navigate(`/catalog/DSA`)
+    }else{
+      console.log("false")
+      navigate("/Signup")
+    }
   }
 
   return (
@@ -85,6 +98,7 @@ function Home() {
                 <div className=''>
 
                   <button 
+                    onClick={()=>navigate('/Signup')}
                     className="bg-richblack-700 text-richblack-300 hover:bg-richblack-800  font-medium rounded-full text-lg px-14 py-1.5 text-center inline-flex items-center mt-16 shadow-richblack-400 shadow-sm hover:shadow-none hover:scale-95 duration-300 transition-all"
                   >
                     Become an Instructor 
@@ -104,10 +118,10 @@ function Home() {
                     </p>
                   </div>
 
-                  <div className='mt-32 flex'>
+                  {/* <div className='mt-32 flex'>
                     <YellowBlackBtn colour={'Yellow'}>Learn More</YellowBlackBtn>
                     <YellowBlackBtn colour={'Black'}>Book a Demo</YellowBlackBtn>
-                  </div>
+                  </div> */}
 
                   <div className='mt-32 shadow-[0px_-15px_100px_rgba(8,_112,_184,_0.7)] ]'>
                     <video 
@@ -198,7 +212,7 @@ function Home() {
 
                   
               <div className='w-11/12 mb-16 relative'>
-                <div onClick={clickHandlerForTags} className='flex py-1 w-[65%] mx-auto text-center items-center justify-center bg-richblack-800 rounded-full'>
+                <div onClick={clickHandlerForTags} className='flex py-2 w-[50%] mx-auto text-center items-center justify-center bg-richblack-800 rounded-full'>
                   {
                     tags.map((tag,index)=>(
                       <ExploreNavbar key={index} currentTag={currentTag} tag={tag}></ExploreNavbar>
@@ -230,15 +244,19 @@ function Home() {
                   <div className='  text-xl mx-auto w-11/12'>
                 
                       <div className='flex justify-center items-center text-md font-extrabold mb-11'>
-                        <YellowBlackBtn colour={'Yellow'}>Explore Full Catalog <FaArrowRight></FaArrowRight></YellowBlackBtn>
-                        <YellowBlackBtn YellowBlackBtn colour={'Black'}>Learn More</YellowBlackBtn>
+                        <div onClick={handelNavigationToCatalog}>
+                            <YellowBlackBtn colour={'Yellow'}>Explore Full Catalog <FaArrowRight></FaArrowRight></YellowBlackBtn>
+                        </div>
+                        <div onClick={()=>navigate("/about")}>
+                            <YellowBlackBtn YellowBlackBtn colour={'Black'}>Learn More</YellowBlackBtn>
+                        </div>
                       </div>
 
                   </div>
                 </div>
 
                 <div className='w-11/12 mx-auto items-center'>
-                  <div className='flex justify-between mt-20 gap-32'>
+                  <div className='flex justify-between mt-20'>
                     <div className='w-[80%]'>
                       <p className='text-5xl '>
                         Get the skills you need for a <HighligthText text={' job that is in demand.'}></HighligthText>
@@ -250,7 +268,7 @@ function Home() {
                         The modern StudyNotion is the dictates its own terms. Today, to be a competitive specialist requires more than professional skills.
                         </p>
                       </div>
-                      <div className='text-sm'>
+                      <div className='text-sm mt-5 w-fit' onClick={()=>navigate("/about")}>
                         <YellowBlackBtn colour={'Yellow'}>Learn More</YellowBlackBtn>
                       </div>
                     </div>
@@ -299,10 +317,10 @@ function Home() {
                   </div>
 
                   <div className="relative mx-auto flex justify-around mt-24">
-                    <div className="absolute left-16">
+                    <div className="absolute left-96">
                       <img src={knowYourProgress} alt="" />
                     </div>
-                    <div className="absolute left-96 -top-10">
+                    <div className="absolute right-90 -top-10">
                       <img src={compareWithOthers} alt="" />
                     </div>
                     <div className="relative left-[350px] -top-9 ">
@@ -310,7 +328,7 @@ function Home() {
                     </div>
                   </div>
 
-                  <div className='flex justify-center mb-20'> 
+                  <div className='flex justify-center mb-20' onClick={()=>navigate("/about")}> 
                     <YellowBlackBtn colour={"Yellow"}>Learn More</YellowBlackBtn>
                   </div>
 
@@ -340,18 +358,18 @@ function Home() {
                           Instructors from around the world teach millions of students on StudyNotion. We provide the tools and skills to teach what you love.
                         </p>
                       </div>
-                      <div className='mt-9'>
+                      <div className='mt-9' onClick={()=>navigate("/Signup")}>
                         <YellowBlackBtn colour={'Yellow'}>Start Teaching Today <FaArrowRight></FaArrowRight></YellowBlackBtn>
                       </div>
 
 
                   </div>
                   </div>
-                    <div className='text-center mb-20'>
+                    {/* <div className='text-center mb-20'>
                       <p className='text-4xl font-bold'>
-                      Reviews from other learners
+                          Reviews from other learners
                       </p>
-                    </div>
+                    </div> */}
 
                 </div>
               </div>

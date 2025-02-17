@@ -39,10 +39,8 @@ function Navbar() {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY) {
-        // Scrolling down: hide Navbar
         setShowNavbar(false);
       } else {
-        // Scrolling up: show Navbar
         setShowNavbar(true);
       }
       setLastScrollY(currentScrollY);
@@ -61,6 +59,17 @@ function Navbar() {
   // Navigation handlers
   const goToHandler = (goto) => navigate(goto);
   const logOutHandler = () => dispatch(logOut(navigate));
+
+  const handelNvigateCatalog=(name)=>{
+    console.log("Clicked",name)
+    if(localStorage.getItem("userData")){
+      console.log("true")
+      navigate(`/catalog/${name}`)
+    }else{
+      console.log("false")
+      navigate("/Signup")
+    }
+  }
 
   return (
     <div
@@ -92,11 +101,16 @@ function Navbar() {
                     >
                       {catagory.length > 0 ? (
                         catagory.map((cat, index) => (
-                          <Link key={index} to={`/catalog/${cat.name}`}>
+                          <div 
+                            key={index} 
+                            // to={`/catalog/${cat.name}`}
+                            onClick={()=>handelNvigateCatalog(cat.name)}
+                            
+                          >
                             <div className='hover:bg-richblack-600 px-3 py-1 rounded-md'>
                               {cat.name}
                             </div>
-                          </Link>
+                          </div>
                         ))
                       ) : (
                         <div>No categories available</div>

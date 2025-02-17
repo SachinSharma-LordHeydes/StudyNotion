@@ -102,9 +102,9 @@ function Login() {
 
                 <form onSubmit={submitHandler}>
 
-                  <div className='flex justify-between mt-9'>
-                    <div className='flex flex-col '>
-                      <label name='firstName' className='text-sm text-richblack-100  focus:bg-richblack-700' htmlFor="email">Frist Name</label>
+                  <div className='flex justify-between mt-9 space-x-9'>
+                    <div className='flex flex-col w-full '>
+                      <label name='firstName' className='text-sm text-richblack-100  focus:bg-richblack-700 ' htmlFor="email">Frist Name</label>
                       <input
                         required 
                         name='firstName' 
@@ -117,7 +117,7 @@ function Login() {
                         />
                     </div>
 
-                    <div className='flex flex-col'>
+                    <div className='flex flex-col w-full'>
                       <label className='text-sm text-richblack-100' htmlFor="email">Last Name</label>
                       <input
                         required 
@@ -132,7 +132,7 @@ function Login() {
                     </div>
                   </div>
 
-                  <div className='flex flex-col mt-4'>
+                  <div className='flex flex-col mt-4 w-[55%]'>
                     <label className='text-sm text-richblack-100' htmlFor="email">Email Address</label>
                     <input
                       required 
@@ -145,8 +145,8 @@ function Login() {
                     onChange={sendToChangeHandler}
                     />
                   </div>
-                  <div className='flex justify-between mt-4'>
-                    <div className='flex flex-col relative'>
+                  <div className='flex justify-between mt-4 space-x-9'>
+                    <div className='flex flex-col relative w-full'>
                         <label className='text-sm text-richblack-100' htmlFor="password">Password</label>
                         <input
                           required 
@@ -162,7 +162,7 @@ function Login() {
                         </span>
                       </div>
 
-                      <div className='flex flex-col relative'>
+                      <div className='flex flex-col relative w-full'>
                         <label className='text-sm text-richblack-100' htmlFor="password">Confirm Password</label>
                         <input
                           required 
