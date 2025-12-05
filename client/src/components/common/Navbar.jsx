@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FaCaretDown } from "react-icons/fa6";
+import { HiMenuAlt3 } from "react-icons/hi";
 import { IoIosArrowDown } from "react-icons/io";
-import { IoCart, IoLogOut } from "react-icons/io5";
+import { IoCart, IoClose, IoLogOut } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
