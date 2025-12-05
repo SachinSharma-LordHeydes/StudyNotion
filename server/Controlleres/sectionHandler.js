@@ -1,6 +1,7 @@
 const courseModel = require("../Models/courseModel");
 const sectionModel = require("../Models/sectionModel");
 const userModel = require("../Models/userModel");
+const mongoose = require('mongoose');
 
 
 
@@ -99,31 +100,57 @@ exports.createSectionHandler = async (req, res) => {
     console.log("Req => ", req.body);
     console.log("Request Params => ", req.params);
 
-    const { sectionName , id } = req.body;
-    const validObjectId = id.replace(':', '');
-
-    if (!sectionName) {
-      return res.status(403).json({
+    const { sectionName, id, courseId } = req.body;
+    
+    // Validate required fields
+    if (!sectionName || !sectionName.trim()) {
+      return res.status(400).json({
         success: false,
-        message: "Section Name is Not Present"
+        message: "Section Name is required"
       });
     }
 
-    if (!id) {
-      return res.status(403).json({
+    // Check for course ID in multiple possible fields
+    const courseIdToUse = courseId || id;
+    if (!courseIdToUse) {
+      return res.status(400).json({
         success: false,
-        message: "Id of The Course is Not Present"
+        message: "Course ID is required"
       });
     }
 
-    // Await the section creation
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(courseIdToUse)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Course ID format"
+      });
+    }
+
+    // Check if course exists
+    const courseExists = await courseModel.findById(courseIdToUse);
+    if (!courseExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found"
+      });
+    }
+
+    // Create the section
     const newSection = await sectionModel.create({
-      sectionName
+      sectionName: sectionName.trim()
     });
+
+    if (!newSection) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create section"
+      });
+    }
 
     // Push the section ID into the courseContent array
     const updatedCourse = await courseModel.findByIdAndUpdate(
-      validObjectId,
+      courseIdToUse,
       {
         $push: {
           courseContent: newSection._id
@@ -139,6 +166,15 @@ exports.createSectionHandler = async (req, res) => {
       }
     });
 
+    if (!updatedCourse) {
+      // If course update failed, clean up the created section
+      await sectionModel.findByIdAndDelete(newSection._id);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update course with new section"
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Section Created Successfully",
@@ -146,10 +182,17 @@ exports.createSectionHandler = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Error in createSectionHandler:", {
+      error: error.message,
+      stack: error.stack,
+      requestBody: req.body,
+      timestamp: new Date().toISOString()
+    });
+    
     return res.status(500).json({
       success: false,
-      message: `Unable to create Section because of `,
-      error:error.message
+      message: "Internal server error while creating section",
+      error: error.message
     });
   }
 };

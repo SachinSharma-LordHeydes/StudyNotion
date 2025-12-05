@@ -53,7 +53,7 @@ function AddLectureModal() {
       formData.append('title',data.title)
       formData.append('description',data.description)
       formData.append('id',clickedSectionID)
-      formData.append('courseId',courseDetails?._id)
+      formData.append('courseId',courseDetails?.courseId)
       formData.append('video',data.thumbnail || data.video)
   
       console.log("Lecture Data:---------------->", formData);

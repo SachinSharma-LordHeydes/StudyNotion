@@ -19,24 +19,12 @@ import { setSubSectionData } from '../../../features/Courses/sectionSlice';
 
 
 
-//Make different status varible for editvideo it is not prefect 
-
-
-
 function CourseBuilder() {
 
   const {modalState,currentStep,changeSectionNameModalState,confirmDeleteModalState,success}=useSelector((state)=>state.profile)
   const {sectionData}=useSelector((state)=>state.section)
   const {courseDetails}=useSelector((state)=>state.course)
-
-  // useEffect(()=>{
-  //   console.log("Course Details-------->",courseDetails);
-  //   console.log("Section Details-------->",sectionData);
-  // },[])
-
-
-
-  // const [subSection,setSubSection]=useState(['Hii','My','Sub-Sections']);
+  
   const [activeSection, setActiveSection] = useState(null);
 
   const dispatch=useDispatch();
@@ -51,9 +39,9 @@ function CourseBuilder() {
   } = useForm ();
 
   const clickCreateSection=(data)=>{
-    console.log("data-->",data.section,courseDetails._id)
-    console.log("dataId-->",courseDetails._id)
-    dispatch((createSection(data.section,courseDetails._id)));
+    console.log("data-->",data.section,courseDetails.courseId)
+    console.log("dataId-->",courseDetails.courseId)
+    dispatch((createSection(data.section,courseDetails.courseId)));
     // data=''
   }
 
@@ -149,7 +137,7 @@ function nextStep(){
                             </div>
                             <div className='flex gap-x-1'>
                               <button onClick={()=>clickToEditSection(section._id)} ><IoPencilOutline /></button>
-                              <button onClick={()=>clickToDeleteSection(section._id,courseDetails._id)}><MdDelete /></button>
+                              <button onClick={()=>clickToDeleteSection(section._id,courseDetails.courseId)}><MdDelete /></button>
                               <div className='mr-1 ml-1'><PiLineVerticalThin /></div>
                               <div onClick={() => toggleDropdown(index)} className='hover:cursor-pointer'>
                                   <FaCaretDown/>

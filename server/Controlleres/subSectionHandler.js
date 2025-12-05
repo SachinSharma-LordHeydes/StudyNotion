@@ -2,6 +2,7 @@ const courseModel = require("../Models/courseModel");
 const sectionModel = require("../Models/sectionModel");
 const subSectionModel = require("../Models/subSectionModel");
 const { uploadFiles } = require("../utils/fileUploader");
+const mongoose = require('mongoose');
 
 require("dotenv").config();
 
@@ -12,78 +13,157 @@ exports.createSubSectionHandler = async (req, res) => {
     const { title, description, id, courseId } = req.body;
 
     console.log("req.body=> ",req.body);
-    console.log("req.diles=> ",req.files);
+    console.log("req.files=> ",req.files);
 
-    const {video} = req.files
-
-    const validObjectId = id.replace(':', '');
-
-    if (!title || !id || !description || !courseId) {
-      return res.status(403).json({
-        success: false,
-        message: "Required fields are missing"
-      });
-    }
-
-    if(!video){
+    // Validate required fields
+    if (!title || !title.trim()) {
       return res.status(400).json({
         success: false,
-        message: "no video file from frontend to backend",
+        message: "Title is required"
       });
     }
- 
-    console.log("Video Path=> ",video) 
 
+    if (!description || !description.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Description is required"
+      });
+    }
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Section ID is required"
+      });
+    }
+
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: "Course ID is required"
+      });
+    }
+
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Section ID format"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Course ID format"
+      });
+    }
+
+    // Check if video file is provided
+    if (!req.files || !req.files.video) {
+      return res.status(400).json({
+        success: false,
+        message: "Video file is required"
+      });
+    }
+
+    const { video } = req.files;
+    console.log("Video Path=> ",video);
+
+    // Verify section exists
+    const sectionExists = await sectionModel.findById(id);
+    if (!sectionExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Section not found"
+      });
+    }
+
+    // Verify course exists
+    const courseExists = await courseModel.findById(courseId);
+    if (!courseExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found"
+      });
+    }
+
+    // Upload video to Cloudinary
     const videoResponse = await uploadFiles(video, process.env.FOLDER_NAME);
-    if (!videoResponse) {
+    if (!videoResponse || !videoResponse.success) {
       return res.status(400).json({
         success: false,
-        message: "Error uploading thumbnail",
+        message: "Error uploading video",
+        error: videoResponse?.message || "Upload failed"
       });
     }
 
-    console.log("Video Response=> ",videoResponse.data.secure_url)
+    console.log("Video Response=> ",videoResponse.data.secure_url);
 
+    // Create new subsection
     const newSubSection = await subSectionModel.create({
-      title,
-      description,
-      videoURL:videoResponse.data.secure_url 
+      title: title.trim(),
+      description: description.trim(),
+      videoURL: videoResponse.data.secure_url
     });
 
+    if (!newSubSection) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create subsection"
+      });
+    }
+
+    // Update section with new subsection
     const updatedSection = await sectionModel.findByIdAndUpdate(
-      validObjectId,
+      id,
       {
         $push: {
           subSection: newSubSection._id
         }
       },
       { new: true }
-    )
-    .populate({
-      path: 'subSection',  // Populate subSection with details
-      select: 'title description videoURL'  // Select only the needed fields
+    ).populate({
+      path: 'subSection',
+      select: 'title description videoURL'
     });
 
+    if (!updatedSection) {
+      // If section update failed, clean up the created subsection
+      await subSectionModel.findByIdAndDelete(newSubSection._id);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update section with new subsection"
+      });
+    }
 
+    // Get updated course with all populated data
     const updatedCourse = await courseModel.findById(courseId).populate({
-      path: 'courseContent', // Populate courseContent which contains sectionModel data
+      path: 'courseContent',
       populate: {
-        path: 'subSection', // Inside each section, populate subSection which contains subSectionModel data
-        select: 'title description videoURL' // Select specific fields from subSection
+        path: 'subSection',
+        select: 'title description videoURL'
       }
-    })
+    });
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Sub-Section Created Successfully",
-      data: updatedCourse  // Now includes all populated details
+      data: updatedCourse
     });
 
   } catch (error) {
+    console.error("Error in createSubSectionHandler:", {
+      error: error.message,
+      stack: error.stack,
+      requestBody: req.body,
+      timestamp: new Date().toISOString()
+    });
+    
     return res.status(500).json({
       success: false,
-      message: `Unable to create Sub-Section`,
-      error
+      message: "Internal server error while creating sub-section",
+      error: error.message
     });
   }
 };

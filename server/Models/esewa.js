@@ -3,8 +3,6 @@ require("dotenv").config();
 const axios = require("axios");
 const crypto = require("crypto");
 
-
-
 async function verifyEsewaPayment(encodedData) {
   try {
     const decodedData = JSON.parse(atob(encodedData)); // Decode and parse base64 data

@@ -76,12 +76,12 @@ export function getAllSection(id){
 
 
 
-export function createSection(sectionName,id){
+export function createSection(sectionName,courseId){
   return async(dispatch)=>{
     try {
-      console.log("Section Name,id",sectionName)
-      const response=await apiConnector('POST',CREATE_SECTION_API,{sectionName,id});
-      console.log("Create Course Response => ",response)
+      console.log("Section Name, courseId:",sectionName, courseId)
+      const response=await apiConnector('POST',CREATE_SECTION_API,{sectionName,courseId});
+      console.log("Create Section Response => ",response)
       dispatch(setSectionData(response.data.data))
 
       if (response.data.success) {

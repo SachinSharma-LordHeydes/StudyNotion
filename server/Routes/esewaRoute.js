@@ -12,8 +12,8 @@ router.post('/payment/initialize-esewa', async (req, res) => {
   try {
     const { itemId, totalPrice , user } = req.body;
 
-    console.log("ESEWA_SECRET_KEY---------:", process.env.ESEWA_SECRET_KEY); 
-    console.log("ESEWA_PRODUCT_CODE-----------:", process.env.ESEWA_PRODUCT_CODE);
+    // console.log("ESEWA_SECRET_KEY---------:", process.env.ESEWA_SECRET_KEY); 
+    // console.log("ESEWA_PRODUCT_CODE-----------:", process.env.ESEWA_PRODUCT_CODE);
 
     if (!itemId || !totalPrice) {
       return res.status(400).json({

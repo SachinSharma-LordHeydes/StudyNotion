@@ -3,57 +3,117 @@ const courseModel = require("../Models/courseModel");
 const catagoryModel = require("../Models/catagoryModel");
 const { uploadFiles } = require("../utils/fileUploader");
 const sectionModel = require("../Models/sectionModel");
+const mongoose = require('mongoose');
+
+// Helper function to validate required fields
+const validateCourseData = (data, thumbnail) => {
+  const { courseName, courseDescp, whatWillYouLearn, price, catagory } = data;
+  
+  const missingFields = [];
+  if (!courseName?.trim()) missingFields.push('courseName');
+  if (!courseDescp?.trim()) missingFields.push('courseDescp');
+  if (!whatWillYouLearn?.trim()) missingFields.push('whatWillYouLearn');
+  if (!price || isNaN(price) || price <= 0) missingFields.push('price');
+  if (!catagory?.trim()) missingFields.push('catagory');
+  if (!thumbnail) missingFields.push('thumbnail');
+  
+  return missingFields;
+};
+
+// Helper function to parse course tags safely
+const parseCourseTag = (courseTag) => {
+  if (!courseTag) return [];
+  
+  try {
+    if (typeof courseTag === 'string') {
+      return JSON.parse(courseTag);
+    }
+    if (Array.isArray(courseTag)) {
+      return courseTag;
+    }
+    return [];
+  } catch (error) {
+    console.warn("Failed to parse courseTag, using empty array:", error);
+    return [];
+  }
+};
+
+// Helper function to validate ObjectId
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
 
 exports.createCourseHandler = async (req, res) => {
+  const session = await mongoose.startSession();
+  
   try {
-    let { courseName, courseDescp, whatWillYouLearn, price, catagory, status,courseTag } = req.body;
-    // courseTag = JSON.parse(courseTag);
-    let parsedCourseTags = [];
-    try {
-      parsedCourseTags = courseTag ? JSON.parse(courseTag) : [];
-    } catch (err) {
-      console.warn("Failed to parse courseTags, using empty array:", err);
-    }
-    console.log("courseTag of create course => ",parsedCourseTags)
+    // Start transaction for data consistency
+    session.startTransaction(); // Ensure transaction is explicitly started
     
-    if (!req.files || !req.files.thumbnail) {
+    const { courseName, courseDescp, whatWillYouLearn, price, catagory, status = "Draft", courseTag } = req.body;
+    const userId = req.user.id;
+    
+    // Validate user authentication
+    if (!userId || !isValidObjectId(userId)) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid user authentication"
+      });
+    }
+    
+    // Validate thumbnail file
+    if (!req.files?.thumbnail) {
       return res.status(400).json({
         success: false,
         message: "Thumbnail file is required"
       });
     }
-
+    
     const thumbnail = req.files.thumbnail;
-
-    if (!courseName || !courseDescp || !whatWillYouLearn || !price || !thumbnail || !catagory) {
+    
+    // Validate required fields
+    const missingFields = validateCourseData(req.body, thumbnail);
+    if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required"
+        message: `Missing required fields: ${missingFields.join(', ')}`
       });
     }
-
-    if (!status || status === undefined) {
-      status = "Draft"
+    
+    // Parse course tags
+    const parsedCourseTags = parseCourseTag(courseTag);
+    
+    // Validate status
+    if (!['Draft', 'Published'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be either 'Draft' or 'Published'"
+      });
     }
-
-    const userId = req.user.id;
-
-    const instructorDetail = await userModel.findById(userId);
+    
+    // Parallel fetch of instructor and category for better performance
+    const [instructorDetail, catagoryDetail] = await Promise.all([
+      userModel.findById(userId).select('_id name email'),
+      catagoryModel.findOne({ name: catagory }).select('_id name')
+    ]);
+    
+    // Validate instructor exists
     if (!instructorDetail) {
       return res.status(404).json({
         success: false,
         message: "Instructor not found"
       });
     }
-
-    const catagoryDetail = await catagoryModel.findOne({ name: catagory });
+    
+    // Validate category exists
     if (!catagoryDetail) {
       return res.status(404).json({
         success: false,
-        message: "Category not found"
+        message: `Category '${catagory}' not found`
       });
     }
-
+    
+    // Upload thumbnail
     const thumbnailResponse = await uploadFiles(thumbnail, process.env.FOLDER_NAME);
     if (!thumbnailResponse.success) {
       return res.status(400).json({
@@ -62,43 +122,94 @@ exports.createCourseHandler = async (req, res) => {
         error: thumbnailResponse.message
       });
     }
-
-    const newCourse = await courseModel.create({
-      courseName,
-      courseDescp,
-      whatWillYouLearn,
+    
+    // Create course with optimized data structure
+    const courseData = {
+      courseName: courseName.trim(),
+      courseDescp: courseDescp.trim(),
+      whatWillYouLearn: whatWillYouLearn.trim(),
       catagory: catagoryDetail._id,
       catagoryName: catagoryDetail.name,
       instructor: instructorDetail._id,
-      price,
+      price: Number(price),
       thumbnail: thumbnailResponse.data.secure_url,
-      courseTag:parsedCourseTags
-    });
-
+      courseTag: parsedCourseTags,
+      status,
+      courseContent: [], // Initialize empty array
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const newCourse = await courseModel.create([courseData], { session });
+    
+    // Update instructor's courses array
     const updatedUser = await userModel.findByIdAndUpdate(
       instructorDetail._id,
-      {
-        $push: { courses: newCourse._id }
-      },
-      { new: true }
-    );
-
+      { $push: { courses: newCourse[0]._id } },
+      { new: true, session }
+    ).select('courses');
+    
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Failed to update instructor's course list"
+      });
+    }
+    
+    // Commit transaction
+    await session.commitTransaction();
+    
+    // Return success response with minimal data
     return res.status(201).json({
       success: true,
       message: "Course created successfully",
-      data: newCourse
+      data: {
+        courseId: newCourse[0]._id,
+        courseName: newCourse[0].courseName,
+        status: newCourse[0].status,
+        thumbnail: newCourse[0].thumbnail,
+        createdAt: newCourse[0].createdAt
+      }
     });
-
+    
   } catch (error) {
-    console.error("Error creating course:", error);
+    // Rollback transaction on error
+    await session.abortTransaction();
+    
+    console.error("Error creating course:", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Handle specific error types
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Course with this name already exists"
+      });
+    }
+    
     return res.status(500).json({
       success: false,
-      message: "Something went wrong while creating the course",
-      error: error.message
+      message: "Internal server error while creating course",
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
     });
+    
+  } finally {
+    // Always end the session
+    await session.endSession();
   }
 };
-
 
 exports.deleteCourseHandler = async (req, res) => {
   try {

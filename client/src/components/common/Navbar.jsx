@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { FaCaretDown } from "react-icons/fa6";
+import { IoIosArrowDown } from "react-icons/io";
+import { IoCart, IoLogOut } from "react-icons/io5";
+import { MdDashboard } from "react-icons/md";
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../assets/Logo/Logo-Full-Light.png';
 import { NavbarLinks } from '../../data/navbar-links';
-import { IoIosArrowDown } from "react-icons/io";
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { IoCart } from "react-icons/io5";
-import { FaCaretDown } from "react-icons/fa6";
-import { MdDashboard } from "react-icons/md";
-import { IoLogOut } from "react-icons/io5";
 import { logOut } from '../../services/operations/authOperation';
 import { getCatagory } from '../../services/operations/courseOperation';
 
@@ -18,6 +17,7 @@ function Navbar() {
   const [clickOnPP, setClickOnPP] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true); // State to toggle Navbar visibility
   const [lastScrollY, setLastScrollY] = useState(window.scrollY); // Track last scroll position
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Mobile menu state
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -80,11 +80,11 @@ function Navbar() {
       <div className='w-11/12 mx-auto flex justify-between items-center'>
         {/* Logo */}
         <Link to='/'>
-          <img className='h-8' src={Logo} alt="Logo" />
+          <img className='h-6 md:h-8' src={Logo} alt="Logo" />
         </Link>
 
-        {/* Navigation Links */}
-        <nav>
+        {/* Desktop Navigation Links */}
+        <nav className='hidden lg:block'>
           <ul>
             <li className='flex gap-x-4 tracking-wider'>
               {NavbarLinks.map((link, index) =>
@@ -103,9 +103,7 @@ function Navbar() {
                         catagory.map((cat, index) => (
                           <div 
                             key={index} 
-                            // to={`/catalog/${cat.name}`}
                             onClick={()=>handelNvigateCatalog(cat.name)}
-                            
                           >
                             <div className='hover:bg-richblack-600 px-3 py-1 rounded-md'>
                               {cat.name}
@@ -128,9 +126,17 @@ function Navbar() {
           </ul>
         </nav>
 
-        {/* User Info */}
+        {/* Mobile Menu Button */}
+        <button 
+          className='lg:hidden text-2xl'
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? <IoClose /> : <HiMenuAlt3 />}
+        </button>
+
+        {/* User Info - Desktop */}
         {userData && userData.token ? (
-          <div className='flex gap-5'>
+          <div className='hidden lg:flex gap-5'>
             <div onClick={() => goToHandler('/dashboard/cart')}>
               {userData.accountType === 'Student' && <IoCart />}
             </div>
@@ -170,7 +176,7 @@ function Navbar() {
             </div>
           </div>
         ) : (
-          <div className='flex gap-3'>
+          <div className='hidden lg:flex gap-3'>
             <Link to='/Login'>
               <button className='border-[1px] border-richblack-500 py-1 px-3 rounded-md'>
                 Log in
@@ -183,6 +189,111 @@ function Navbar() {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Mobile Menu Slide-out */}
+      <div className={`lg:hidden fixed top-[60px] left-0 w-full h-screen bg-richblack-900 transform transition-transform duration-300 ${
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <nav className='px-6 py-4'>
+          <ul className='flex flex-col gap-4'>
+            {NavbarLinks.map((link, index) =>
+              link.title === 'Catalog' ? (
+                <div key={index}>
+                  <p className='text-lg font-semibold mb-2'>{link.title}</p>
+                  <div className='pl-4 flex flex-col gap-2'>
+                    {catagory.length > 0 ? (
+                      catagory.map((cat, catIndex) => (
+                        <div 
+                          key={catIndex} 
+                          onClick={() => {
+                            handelNvigateCatalog(cat.name);
+                            setMobileMenuOpen(false);
+                          }}
+                          className='hover:text-caribbeangreen-200 cursor-pointer'
+                        >
+                          {cat.name}
+                        </div>
+                      ))
+                    ) : (
+                      <div>No categories available</div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <Link 
+                  key={index} 
+                  to={link.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <p className='text-lg'>{link.title}</p>
+                </Link>
+              )
+            )}
+            
+            {/* Mobile User Actions */}
+            {userData && userData.token ? (
+              <div className='mt-6 border-t border-richblack-700 pt-4'>
+                <div className='flex items-center gap-3 mb-4'>
+                  <img
+                    className='rounded-full size-10'
+                    src={userData?.image || userData?.imageURL}
+                    alt="Profile"
+                  />
+                  <div>
+                    <p className='font-semibold'>{userData?.firstName} {userData?.lastName}</p>
+                    <p className='text-sm text-richblack-300'>{userData?.email}</p>
+                  </div>
+                </div>
+                {userData.accountType === 'Student' && (
+                  <div 
+                    className='flex items-center gap-3 py-2 hover:text-caribbeangreen-200 cursor-pointer'
+                    onClick={() => {
+                      goToHandler('/dashboard/cart');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <IoCart className='text-xl' />
+                    <span>Cart</span>
+                  </div>
+                )}
+                <div 
+                  className='flex items-center gap-3 py-2 hover:text-caribbeangreen-200 cursor-pointer'
+                  onClick={() => {
+                    goToHandler('/dashboard/my-profile');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <MdDashboard className='text-xl' />
+                  <span>Dashboard</span>
+                </div>
+                <div 
+                  className='flex items-center gap-3 py-2 hover:text-pink-200 cursor-pointer'
+                  onClick={() => {
+                    logOutHandler();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <IoLogOut className='text-xl' />
+                  <span>Logout</span>
+                </div>
+              </div>
+            ) : (
+              <div className='flex flex-col gap-3 mt-6 border-t border-richblack-700 pt-4'>
+                <Link to='/Login' onClick={() => setMobileMenuOpen(false)}>
+                  <button className='w-full border-[1px] border-richblack-500 py-2 px-3 rounded-md'>
+                    Log in
+                  </button>
+                </Link>
+                <Link to='/Signup' onClick={() => setMobileMenuOpen(false)}>
+                  <button className='w-full border-[1px] border-richblack-500 py-2 px-3 rounded-md'>
+                    Sign up
+                  </button>
+                </Link>
+              </div>
+            )}
+          </ul>
+        </nav>
       </div>
     </div>
   );

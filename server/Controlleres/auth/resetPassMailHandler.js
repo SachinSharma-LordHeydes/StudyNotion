@@ -34,7 +34,8 @@ exports.resetPassMailHandler=async(req,res)=>{
     );
     console.log(updatedUser)
 
-    const resetURl=`${process.env.FRONTEND_URL}/auth/updatePassword/${newToken}`;
+    const resetURl=`${process.env.FRONTEND_URL}auth/updatePassword/${newToken}`;
+
     // const resetURl=`https://studynotionfrontend-7fp0.onrender.com/auth/updatePassword/${newToken}`;
     console.log("eset URl-------->,",resetURl)
     await mailSender(email,`Reset your Password`,`Click the Link Below To Reset Your Password ${resetURl}`);

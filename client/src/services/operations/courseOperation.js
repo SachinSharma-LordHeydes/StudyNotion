@@ -319,7 +319,9 @@ export function removeFromCart(courseID, token){
 
 export function buyCourse(itemId, totalPrice,user){
   return async(dispatch)=>{
+    console.log("buying course")
     dispatch(setLoader(true))
+
     try {
       console.log("user to buy----------->",user)
       const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
@@ -330,17 +332,12 @@ export function buyCourse(itemId, totalPrice,user){
         itemId,
         totalPrice: Number(totalPrice).toFixed(2), // Format price to 2 decimal places
       });
-  
       const { success, payment, purchasedItemData } = response.data;
-  
       if (!success) {
         console.log('Error whiile making payment-----> ', response);
         throw new Error('Failed to initialize payment. ', response);
       }
-      
-  
       console.log('eSewa Payment Initialization:', payment);
-  
       // Step 2: Create eSewa form dynamically
       const paymentForm = {
         amount: Number(totalPrice).toFixed(2),
@@ -355,12 +352,10 @@ export function buyCourse(itemId, totalPrice,user){
         total_amount: Number(totalPrice).toFixed(2), 
         transaction_uuid: purchasedItemData._id,
       };
-  
       // Step 3: Submit form to eSewa
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'; // eSewa test endpoint
-  
       Object.entries(paymentForm).forEach(([key, value]) => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -368,11 +363,9 @@ export function buyCourse(itemId, totalPrice,user){
         input.value = value;
         form.appendChild(input);
       });
-  
       console.log('Submitting form with data:', paymentForm);
       document.body.appendChild(form);
       form.submit();
-
       dispatch(setLoader(false))
     } catch (error) {
       dispatch(setLoader(false))
